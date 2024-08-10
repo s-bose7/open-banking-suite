@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  mysql:
+    extends:
+      file: ./docker/compose/mysql.yml
+      service: mysql
+
+  zookeeper:
+    extends:
+      file: ./docker/compose/kafka.yml
+      service: zookeeper
+
+  kafka:
+    extends:
+      file: ./docker/compose/kafka.yml
+      service: kafka
+
+volumes:
+  mysql_data:
