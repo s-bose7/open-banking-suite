@@ -6,6 +6,7 @@ on:
       - "*"
     branches_ignore:
       - "develop"
+      - "main"
 
   pull_request:
     branches:
