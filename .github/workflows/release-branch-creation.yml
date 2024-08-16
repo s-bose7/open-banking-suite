@@ -1,0 +1,73 @@
+name: "Auto create new release branch"
+# Uncomment the schedule part when require weekly release
+# on:
+#   schedule:
+#     - cron: "0 0 * * 0"  # Runs at 00:00 every Sunday
+on:
+  workflow_dispatch:
+    inputs:
+      prevVersion:
+        description: 'Previous version (leave blank for first release)'
+        required: false
+      currVersion:
+        description: 'Current version (e.g., 1.0.0)'
+        required: true
+
+jobs:
+  createrelease:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout develop branch
+        uses: actions/checkout@v2
+        with:
+          ref: develop
+
+      - name: Setup git config
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Create new release branch
+        run: |
+          git checkout -b release/v${{ github.event.inputs.currVersion }}
+
+      - name: Select commits for new release
+        id: get-commits
+        run: |
+          if [ -z "${{ github.event.inputs.prevVersion }}" ]; then
+            # No previous version, include all commits
+            commits=$(git log --oneline)
+          else
+            # Include commits since the previous version
+            commits=$(git log --oneline v${{ github.event.inputs.prevVersion }}..develop)
+          fi
+          echo "::set-output name=commits::${commits}"
+
+      - name: Push new release branch to origin
+        run: |
+          git push origin release/v${{ github.event.inputs.currVersion }}
+
+      - name: Create pull request to main
+        uses: thomaseizinger/create-pull-request@1.0.0
+        with:
+          head: release/v${{ github.event.inputs.currVersion }}
+          base: main
+          title: v${{ github.event.inputs.currVersion }} into main
+          body: |
+            Hi!
+            This PR was created in response to workflow dispatch.
+            Here are the new release commits:
+            ${{ steps.get-commits.outputs.commits }}
+
+      - name: Create pull request to develop
+        uses: thomaseizinger/create-pull-request@1.0.0
+        with:
+          head: release/v${{ github.event.inputs.currVersion }}
+          base: develop
+          title: v${{ github.event.inputs.currVersion }} into develop
+          body: |
+            Hi!
+            This PR was created in response to workflow dispatch.
+            Here are the new release commits:
+            ${{ steps.get-commits.outputs.commits }}
