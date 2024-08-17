@@ -7,4 +7,4 @@ A formal specification of the software can be found [here.](https://docs.google.
 # Requirements
 
 
-# Instructions on Installing and Building
+# Build Instructions

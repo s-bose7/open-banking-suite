@@ -1,5 +1,6 @@
 name: "Auto create new release branch"
-# Uncomment the schedule part when require weekly release
+# Uncomment schedule cron when weekly release is required
+# Make sure to comment out workflow_dispatch in that case
 # on:
 #   schedule:
 #     - cron: "0 0 * * 0"  # Runs at 00:00 every Sunday
