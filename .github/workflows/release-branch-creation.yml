@@ -14,6 +14,9 @@ on:
         description: 'Current version (e.g., 1.0.0)'
         required: true
 
+permissions:
+  contents: write
+
 jobs:
   createrelease:
     runs-on: ubuntu-latest
@@ -43,15 +46,18 @@ jobs:
             # Include commits since the previous version
             commits=$(git log --oneline v${{ github.event.inputs.prevVersion }}..develop)
           fi
-          echo "::set-output name=commits::${commits}"
+          echo "commits=${commits}" >> $GITHUB_OUTPUT
 
       - name: Push new release branch to origin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git push origin release/v${{ github.event.inputs.currVersion }}
 
       - name: Create pull request to main
         uses: thomaseizinger/create-pull-request@1.0.0
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           head: release/v${{ github.event.inputs.currVersion }}
           base: main
           title: v${{ github.event.inputs.currVersion }} into main
@@ -64,6 +70,7 @@ jobs:
       - name: Create pull request to develop
         uses: thomaseizinger/create-pull-request@1.0.0
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           head: release/v${{ github.event.inputs.currVersion }}
           base: develop
           title: v${{ github.event.inputs.currVersion }} into develop
