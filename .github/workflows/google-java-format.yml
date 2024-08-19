@@ -3,9 +3,6 @@ run-name: ""
 on:
   push:
     branches:
-      - "*"
-    branches_ignore:
-      - "develop"
       - "main"
 
   pull_request:
